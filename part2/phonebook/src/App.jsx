@@ -1,13 +1,23 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import Filter from "./components/Filter"
+import Form from "./components/Form"
+import Numbers from './components/Numbers'
+import axios from 'axios'
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: 'Arto Hellas', number: '040-1234567' }
-  ]) 
+  const [persons, setPersons] = useState([]) 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filtered, setFiltered] = useState('')
 
+  useEffect(() => {
+    axios.get('http://localhost:3001/persons')
+    .then(response => {
+       console.log(response.data)
+       setPersons(response.data)
+    })
+  }, [])
+  
   const handleSubmit = (e) => {
     e.preventDefault()
     if (persons.some((person) => person.name === newName || person.number === newNumber)) {
@@ -19,27 +29,26 @@ const App = () => {
     }
   } 
 
+  const handleFilter = (e) => {
+    setFiltered(e.target.value)
+  }
+
+  const handleNameChange = (e) => {
+    setNewName(e.target.value)
+  }
+
+  const handleNumberChange = (e) => {
+    setNewNumber(e.target.value)
+  }
+
+
   return (
     <div>
       <h2>Phonebook</h2>
-        <label htmlFor="filter">filter shown with</label>
-        <input id="filter" value={filtered} onChange={(e) => setFiltered(e.target.value)}/>
-      <form onSubmit={handleSubmit}>
-        <h2>add a new</h2>
-        <div>
-          name: <input value={newName} onChange={(e) => setNewName(e.target.value)}/> <br />
-          number: <input value={newNumber} onChange={(e) => setNewNumber(e.target.value)}/>
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
+       <Filter filtered={filtered} handleFilter={handleFilter}/>
+      <Form newName={newName} newNumber={newNumber} handleSubmit={handleSubmit} handleNameChange={handleNameChange} handleNumberChange={handleNumberChange}/>
       <h2>Numbers</h2>
-      {persons.map((person, i) => {
-        return (
-          <p key={i}>{filtered ? person.name.includes(filtered) : person.name}</p>
-        )
-      })}
+      <Numbers persons={persons} filtered={filtered}/>
    </div>
   )
 }
