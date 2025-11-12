@@ -19,11 +19,6 @@
       "id": "93dc",
       "content": "new note",
       "important": true
-    },
-    {
-      "id": "7e45",
-      "content": "POST request to create  new note",
-      "important": false
     }
   ]
 }

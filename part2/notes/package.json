@@ -11,6 +11,7 @@
     "server": "json-server -p 3001 db.json"
   },
   "dependencies": {
+    "@rollup/rollup-darwin-arm64": "^4.53.2",
     "axios": "^1.13.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

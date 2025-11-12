@@ -2,9 +2,11 @@ const Numbers = (props) => {
     return props.persons.filter(person => {
         if (!props.filtered) return true
         return person.name.toLowerCase().includes(props.filtered.toLowerCase())
-      }).map((person, i) => {
+      }).map((person) => {
         return (
-          <p key={i}>{person.name} {person.number}</p>
+          <p key={person.id}>{person.name} {person.number} <button onClick={() => props.handleDelete(person.id)}>delete</button>
+</p>
+          
         )
       })
 }
