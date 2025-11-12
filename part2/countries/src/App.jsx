@@ -27,27 +27,25 @@ function App() {
   }, [])
 
   useEffect(() => {
-    if (filteredCountries.length === 1 || countryShown) {
-      const country = countryShown
+    const country = countryShown
       ? countryList.find(c => c.name.common === countryShown)
-      : filteredCountries[0]
-
-      if (country && country.capitalInfo && country.capitalInfo.latlng) {
-        const [lat, lon] = country.capitalInfo.latlng
-        countriesService
+      : (filteredCountries.length === 1 ? filteredCountries[0] : null)
+  
+    if (country && country.capitalInfo && country.capitalInfo.latlng) {
+      const [lat, lon] = country.capitalInfo.latlng
+      countriesService
         .getWeatherData(lat, lon)
         .then(weather => {
+          console.log("fetched")
           setWeatherData(weather)
         })
         .catch(error => {
           console.log("Error fetching weather:", error)
           setWeatherData(null)
         })
-      }
-    } 
-  }, [filteredCountries, countryShown, countryList])
+    }
+  }, [countryShown, countryList]) 
 
-  console.log(weatherData)
 
   
 
@@ -79,7 +77,7 @@ function App() {
           )
         })
       )}
-      {filteredCountries && filteredCountries.length === 1 && !countryShown && (
+      {filteredCountries && filteredCountries.length === 1 && !countryShown && weatherData && (
         <div>
           <h1>{filteredCountries[0].name.common}</h1>
           <p>Capital: {filteredCountries[0].capital}</p>
@@ -98,13 +96,15 @@ function App() {
           style={{width: '200px'}}
           />
           <h2>Weather in {filteredCountries[0].capital}</h2>
-          <p>Temperature: {Math.round(weatherData.current.temp)}</p>
-          <p>{Math.round(weatherData.current.temp)}</p>
-          <p>{Math.round(weatherData.current.temp)}</p>
+          <p>Temperature: {Math.round(weatherData.current.feels_like)}</p>
+          <img 
+          src={`https://openweathermap.org/img/wn/${weatherData.current.weather[0].icon}@2x.png`}
+          />
+          <p>Wind: {weatherData.current.wind_speed}</p>
         </div>
       )}
 
-{countryShown && (
+{countryShown && weatherData && (
         <div>
           <h1>{filteredCountries[0].name.common}</h1>
           <p>Capital: {filteredCountries[0].capital}</p>
@@ -122,6 +122,12 @@ function App() {
           alt={`Flag of ${filteredCountries[0].name.common}`}
           style={{width: '200px'}}
           />
+          <h2>Weather in {filteredCountries[0].capital}</h2>
+          <p>Temperature: {Math.round(weatherData.current.feels_like)}</p>
+          <img 
+          src={`https://openweathermap.org/img/wn/${weatherData.current.weather[0].icon}@2x.png`}
+          />
+          <p>Wind: {weatherData.current.wind_speed}</p>
         </div>
       )}
 

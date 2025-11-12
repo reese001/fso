@@ -11,7 +11,7 @@ const getCountries = () => {
 }
 
 const getWeatherData = (lat, lon) => {
-   const request = axios.get(`https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&appid=${API_KEY}`)
+   const request = axios.get(`https://api.openweathermap.org/data/3.0/onecall?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`)
     return request.then(response => response.data)
 }
 
