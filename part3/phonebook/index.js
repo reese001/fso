@@ -3,6 +3,7 @@ const morgan = require('morgan')
 const app = express()
 require('dotenv').config()
 const Person = require('./models/person')
+const note = require('../notes/backend/models/note')
 
 app.use(express.json())
 morgan.token('body', req => {
@@ -10,6 +11,21 @@ morgan.token('body', req => {
   })
   
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'))
+
+const unknownEndpoint = (request, response) => {
+    response.status(404).send({ error: 'unknown endpoint' })
+  }
+  
+
+const errorHandler = (error, request, response, next) => {
+    console.error(error.message)
+  
+    if (error.name === 'CastError') {
+      return response.status(400).send({error: 'malformatted id'
+      })
+    }
+    next(error)
+  }
 
 
 app.get('/api/persons', (request, response) => {
@@ -34,10 +50,12 @@ app.get('/info', (request, response) => {
         `)
 })
 
-app.delete('/api/persons/:id', (request, response) => {
-    const id = request.params.id
-    persons = persons.filter(person => person.id !== id)
-    response.status(204).end()
+app.delete('/api/persons/:id', (request, response, next) => {
+   note.findByIdAndDelete(request.params.id)
+   .then(result => {
+        response.status(204).end()
+   })
+   .catch(error => next(error))
 })
 
 // app.post('/api/notes', (request, response) => {
@@ -68,19 +86,30 @@ app.post('/api/persons', (request, response) => {
             error: "name and number required"
         })
     } 
-    const person = new Person({
-        id: Math.floor(Math.random() * 99999999999),
-        name: body.name,
-        number: body.number
+
+    Person.findOne({name: body.name})
+    .then(existingPerson => {
+        if (existingPerson) {
+            existingPerson.number = body.number
+            return existingPerson.save()
+        } else {
+            const person = new Person({
+                name: body.name,
+                number: body.number
+            })
+            return person.save()
+        }
     })
-    
-    person.save().then(savedPerson => {
+    .then(savedPerson => {
         response.json(savedPerson)
     })
+    .catch(error => next(error))
 })
 
-    
 
+app.use(unknownEndpoint)
+    
+app.use(errorHandler)
 
 const PORT = 3001
 app.listen(PORT, () => {
